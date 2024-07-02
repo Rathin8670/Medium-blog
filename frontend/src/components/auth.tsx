@@ -1,32 +1,47 @@
 import { SignupInput } from 'rathin25'
 import { useState } from 'react'
-import {Link} from 'react-router-dom'
-
+import {Link, useNavigate} from 'react-router-dom'
+import  axios  from 'axios'
+import { Backend_url } from '../config'
 
 export const Auth=({type}:{type:'signin'|'signup'})=>{
+    const navigate=useNavigate();
     const [postInputs,setPostInputs]=useState<SignupInput>({
         email:"",
         name:"",
         password:""
     })
+
+    async function SendReq(){
+        try{
+            const response=await axios.post(`${Backend_url}/api/v1/user/${type==='signup'?'signup':'signin'}`,postInputs)
+            const jwt=response.data;
+            localStorage.setItem("token", jwt);
+            navigate('/blogs');
+        }catch(e){
+            alert("Error while signing up")
+        }
+    }
+
     return (
         <div className=" bg-cyan-50  h-screen flex justify-center flex-col">
             
             <div className="max-w-md pl-24 text-center text-3xl font-bold">
                 Create an account
             </div>
+
             <div className="max-w-md text-center pl-24 text-zinc-600 text-l">
                 {type==="signin"?"Don't have an account?":" Already have an account?"}
                 <Link className='underline underline-offset-1 pl-2 text-blue-600' to={type==="signin"?'/signup':'/signin'}>{type==="signin"?"Sign Up":"Sign In"}</Link>
 
             </div>
             
-            <LabelInput title="Username" placeholder="jhon deo..." onchange={(e)=>{
+            {type==='signup'?<LabelInput title="Username" placeholder="jhon deo..." onchange={(e)=>{
                 setPostInputs({
                     ...postInputs,
                     name:e.target.value
                 })
-            }}/> 
+            }}/>: null}
 
             <LabelInput title="Email" placeholder="jhondeo1234@gmail.com." onchange={(e)=>{
                 setPostInputs({
@@ -42,7 +57,9 @@ export const Auth=({type}:{type:'signin'|'signup'})=>{
                 })
             }} type='password'/>  
             
-            <ButtonComponent value={type==='signin'?"Sign In":"Sign Up"}></ButtonComponent>
+            <div className='max-w-md pl-24 '>
+                <button onClick={SendReq} className="text-center block  border shadow-md border-blue-500 rounded  w-full p-2.5 mt-4  bg-blue-500 hover:bg-blue-700 text-white font-semibold">{type==='signin'?'Sign In':'Sign Up'}</button>
+            </div>
         </div>
     
     )
@@ -55,13 +72,7 @@ interface labelinputType{
     type?:string
 }
 
-function ButtonComponent({value}:any){
-    return (
-        <div className='max-w-md pl-24 '>
-            <button className="text-center block  border shadow-md border-blue-500 rounded  w-full p-2.5 mt-4  bg-blue-500 hover:bg-blue-700 text-white font-semibold">{value}</button>
-        </div>
-    )
-}
+
 function LabelInput({title,placeholder,onchange,type}:labelinputType){
     return (
         <div className='max-w-md pl-24'>
