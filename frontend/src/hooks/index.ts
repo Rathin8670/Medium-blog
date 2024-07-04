@@ -20,11 +20,14 @@ export const useBlogs = () => {
             try {
                 const response = await axios.get(`${Backend_url}/api/v1/blog/bulk`, {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                        Authorization: `${localStorage.getItem("token")}`
+                        // Authorization: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUyMmJhMTA4LTdkZjctNDUwYS04OTAwLTQwNTlmZjhmZWEzYSJ9.4gaQW4ikwTE--iJ4xN61t-NoT9IU_R37nsxfOInjT30`
                     }
                 });
-                console.log(response.data)
-                setBlogs(response.data);
+               // console.log("After satically rendering to check jwt value:")
+                //console.log(JSON.stringify(localStorage.getItem("token")))
+                console.log(response.data.blogs)
+                setBlogs(response.data.blogs);
             } catch (e) {
                 console.log("Error fetching blogs:", e);
                 alert("An error occurred while fetching blogs.");

@@ -16,9 +16,12 @@ export const Auth=({type}:{type:'signin'|'signup'})=>{
         try{
             const response=await axios.post(`${Backend_url}/api/v1/user/${type==='signup'?'signup':'signin'}`,postInputs)
             const jwt=response.data;
-            //console.log('Token received:', jwt); // Debugging log
+
+            console.log('Token received:', jwt); 
             localStorage.setItem("token", jwt);
-            //console.log('Token stored in localStorage'); // Debugging log
+            console.log('Token stored in localStorage'); 
+            console.log(localStorage.getItem("token"))
+
             navigate('/blogs');
         }catch(e){
             alert("Error while signing up")
