@@ -34,6 +34,27 @@ blogRouter.use('/*',async (c,next)=>{
 	}
 })
 
+// blogRouter.use('/*', async (c, next) => {
+// 	const header = c.req.header("authorization") || "";
+// 	const token = header.split(" ")[1]
+
+// 	try {
+// 		const response = await verify(token, c.env.JWT_SECRET);
+// 		if (response.id) {
+// 			c.set("userId", response.id);
+// 			await next()
+// 		} else {
+// 			c.status(403);
+// 			return c.json({ error: "unauthorized" })
+// 		}
+// 	} catch (e) {
+// 		c.status(403);
+// 		return c.json({ error: "unauthorized" })
+// 	}
+
+// })
+
+// create a blog and put in the db
 blogRouter.post('/',async(c)=>{
     const prisma = new PrismaClient({
 		datasourceUrl: c.env.DATABASE_URL,
@@ -65,6 +86,7 @@ blogRouter.post('/',async(c)=>{
 
 })
 
+// upadte the blog using id 
 blogRouter.put('/',async(c)=>{
     const prisma = new PrismaClient({
 		datasourceUrl: c.env.DATABASE_URL,
@@ -95,6 +117,7 @@ blogRouter.put('/',async(c)=>{
     }
 })
 
+// get the secific blog 
 blogRouter.get('/',async(c)=>{
     const prisma = new PrismaClient({
 		datasourceUrl: c.env.DATABASE_URL,
@@ -116,13 +139,26 @@ blogRouter.get('/',async(c)=>{
     }
 })
 
+// get the blogs
 // pagination==>means see the first 10 or 15 posts which are capable in 1 page
 blogRouter.get('/bulk',async(c)=>{
+    // console.log(bulk)
     const prisma = new PrismaClient({
 		datasourceUrl: c.env.DATABASE_URL,
 	}).$extends(withAccelerate())
-
-    const blogs=await prisma.post.findMany();
+    
+    const blogs=await prisma.post.findMany({
+        select:{
+            content:true,
+            title:true,
+            id:true,
+            author:{
+                select:{
+                    name:true
+                }
+            }
+        }
+    });
 
     return c.json({
         blogs
