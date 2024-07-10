@@ -11,7 +11,7 @@ export const Blog=()=>{
     const {blog,loading}=useBlog({
         id:id||""
     });
-    if(loading){
+    if(loading || !blog){
         return <div>
             <BlogsSkeleton></BlogsSkeleton>
         </div>
@@ -19,8 +19,8 @@ export const Blog=()=>{
     return (
         <div>
             <Appbar></Appbar>
-            
-            <Fullblog blog={blog} ></Fullblog>
+    
+            <Fullblog blog={blog } ></Fullblog>
         </div>
     )
 }
