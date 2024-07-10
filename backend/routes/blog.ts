@@ -23,9 +23,8 @@ blogRouter.use('/*',async (c,next)=>{
 	// if the header is correct,we proceed
 	// if not return 403 
 	const header=c.req.header("authorization") ||""
-	const user=await verify(header,c.env.JWT_SECRET)
-	if(user){
-        //@ts-ignore
+	const user=await verify(header,c.env.JWT_SECRET) as {id:string}
+	if(user.id){
         c.set("userId",user.id)
 		await next();
 	}else{
@@ -117,28 +116,6 @@ blogRouter.put('/',async(c)=>{
     }
 })
 
-// get the secific blog 
-blogRouter.get('/',async(c)=>{
-    const prisma = new PrismaClient({
-		datasourceUrl: c.env.DATABASE_URL,
-	}).$extends(withAccelerate())
-
-    const body=await c.req.json();
-    try{
-        const blog=await prisma.post.findFirst({
-            where:{
-                id:body.id
-            }
-        })
-        return c.json({
-            blog
-        })
-    }catch(e){
-        c.status(417);
-        return c.json({error:"error in getting data"})
-    }
-})
-
 // get the blogs
 // pagination==>means see the first 10 or 15 posts which are capable in 1 page
 blogRouter.get('/bulk',async(c)=>{
@@ -148,19 +125,49 @@ blogRouter.get('/bulk',async(c)=>{
 	}).$extends(withAccelerate())
     
     const blogs=await prisma.post.findMany({
-        select:{
-            content:true,
-            title:true,
-            id:true,
-            author:{
-                select:{
-                    name:true
+            select:{
+                content:true,
+                title:true,
+                id:true,
+                author:{
+                    select:{
+                        name:true
+                    }
                 }
             }
-        }
-    });
-
-    return c.json({
-        blogs
-    })
+        });
+        return c.json(
+                {blogs}
+        )
 })
+
+// get the secific blog 
+blogRouter.get('/:id',async(c)=>{
+    const id=c.req.param('id')
+
+    const prisma = new PrismaClient({
+		datasourceUrl: c.env.DATABASE_URL,
+	}).$extends(withAccelerate())
+
+   // const body=await c.req.json();
+        const blog=await prisma.post.findFirst({
+            where:{
+                id:Number(id)
+            },
+            select:{
+                id: true,
+                title: true,
+                content: true,
+                author: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        })
+    
+        return c.json(
+            {blog}
+        )
+})
+

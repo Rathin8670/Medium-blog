@@ -15,7 +15,7 @@ export const Auth=({type}:{type:'signin'|'signup'})=>{
     async function SendReq(){
         try{
             const response=await axios.post(`${Backend_url}/api/v1/user/${type==='signup'?'signup':'signin'}`,postInputs)
-            const jwt=response.data;
+            const {jwt}=response.data;
 
             console.log('Token received:', jwt); 
             localStorage.setItem("token", jwt);
